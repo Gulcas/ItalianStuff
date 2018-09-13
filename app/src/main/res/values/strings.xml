@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Italian Stuff</string>
+    <string name="action_settings">ustawienia</string>
+    <string name="action_create_order">złóż zamówienie</string>
+    <string name="order_activity_name">złóż zamówienie</string>
+    <string name="action_share">udostępnij</string>
+</resources>
