@@ -25,13 +25,15 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        titles = getResources().getStringArray(R.array.titles);
-        drawerList = (ListView) findViewById(R.id.drawer);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerList.setAdapter(new ArrayAdapter<String>(this, //do określenia zawartości widoku używam adaptera
-                android.R.layout.simple_list_item_activated_1, titles)); //używając ...activated list item, elementy wybrane zostaną podświetlone
+        titles = getResources().getStringArray(R.array.titles); //odnajduję listę główną szuflady
+        drawerList = (ListView) findViewById(R.id.drawer); //odnajduję sam widok szuflady
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout); //odnajduję layout w którym znajduje się szuflada
+        drawerList.setAdapter(new ArrayAdapter<String>(this, //do odnalezionego widoku szuflady wciskam odnalezioną listę główną szuflady,
+                android.R.layout.simple_list_item_activated_1, titles)); //a używając ...activated list item, elementy wybrane zostaną podświetlone
+
         drawerList.setOnItemClickListener(new DrawerItemClickListner()); //dodaję utworzon nasłuchiwacz do widoku listy
-        if (savedInstanceState == null) {
+
+        if (savedInstanceState == null) { //jeżeli zapisany stan aktywności wynosił nic to późniejsze metody też zostaną wykonane od niczego
             selectItem(0);
         }
     }
@@ -44,7 +46,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    //poniższa metoda wykorzystuje swich by okreśłić który fragment ma zostać podmieniony za content_frame- określonej w activity_main.xml
+    //poniższa metoda wykorzystuje swich by okreśłić który fragment ma zostać wciśnięty do ramki w ekranie główny by nie tworzyć dodatkowych widoków
     private void selectItem(int position) {
         Fragment fragment;
         switch (position) {
@@ -60,18 +62,17 @@ public class MainActivity extends Activity {
             default:
                 fragment = new TopFragment();
         }
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.content_frame, fragment);
+        FragmentTransaction ft = getFragmentManager().beginTransaction(); //wywołany manager fragmentów
+        ft.replace(R.id.content_frame, fragment); //określam gdzie i który fragment ma być wciśnięty
         ft.addToBackStack(null);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        ft.commit();
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE); //określam sposób przejścia
+        ft.commit(); //wykonaj
         setActionBarTitle(position); //wykorzystam inną metodę by podmienić nazwę na pasku akcji
-        //na zakończenie zamykamy szufladę
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawerLayout.closeDrawer(drawerList);
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout); //na zakończenie odszukuję layout szuflady
+        drawerLayout.closeDrawer(drawerList); //i go zamykam ustępując miejsca nowo wstawionemu fragmentowi
     }
 
-    private void setActionBarTitle(int position) {
+    private void setActionBarTitle(int position) { //metoda umieszczająca nazwę fragmentu w pasku akcji
         String title;
         if (position == 0) { //jeżeli kliknięta pozycja to nic to nazwa pozostaje ta sama
             title = getResources().getString(R.string.app_name);
@@ -85,13 +86,15 @@ public class MainActivity extends Activity {
     //zaimplementowana w ten sposób metoda spowoduje dodanie do paska akcji wszystkich elementów z podanego pliku zasobów menu
     public boolean onCreateOptionsMenu(Menu menu) {
         //poniżej przygotowuję menu, dodajemy elementy menu do paska akcji
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem menuItem = menu.findItem(R.id.action_share);
+        getMenuInflater().inflate(R.menu.menu_main, menu); //określam czym napompować widok
+        MenuItem menuItem = menu.findItem(R.id.action_share); //określam że znajdzie się tam również odnośnik do nie moich aktywności (aplikacji)
         shareActionProvider = (ShareActionProvider) menuItem.getActionProvider();
-        setIntent("Tekst");
+        setIntent("Tekst"); //wykorzystuję inną metodę by przekazać info jakich aktywności (aplikacji) oczekuję
         return super.onCreateOptionsMenu(menu);
     }
 
+    //ta metoda określa czego oczekuję względem obcych aktywności(aplikacji)
+    //dzięki temu zostaną wyświetlone jedynie aplikacje mogące spełnić moje zachcianki
     private void setIntent(String text) {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
@@ -99,7 +102,8 @@ public class MainActivity extends Activity {
         shareActionProvider.setShareIntent(intent);
     }
 
-    @Override//zaimplementowana metoda wykona określony kod po kliknięciu wybranego elementu
+    //zaimplementowana metoda wykona określony kod po kliknięciu wybranego elementu
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_create_order: //wywołuję aktywność OrderActivity
