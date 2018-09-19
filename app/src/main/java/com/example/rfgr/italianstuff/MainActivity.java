@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,11 +22,14 @@ public class MainActivity extends Activity {
     private String[] titles; //zapisuję tu prywatne zmienne ponieważ będę ich potrzebował w różnych metodach tej klasy
     private ListView drawerList;
     private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getActionBar().setDisplayHomeAsUpEnabled(true); //włączam przyciski "w górę"
+        getActionBar().setHomeButtonEnabled(true); //włączam przyciski "w górę"
         titles = getResources().getStringArray(R.array.titles); //odnajduję listę główną szuflady
         drawerList = (ListView) findViewById(R.id.drawer); //odnajduję sam widok szuflady
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout); //odnajduję layout w którym znajduje się szuflada
@@ -36,6 +41,41 @@ public class MainActivity extends Activity {
         if (savedInstanceState == null) { //jeżeli zapisany stan aktywności wynosił nic to późniejsze metody też zostaną wykonane od niczego
             selectItem(0);
         }
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, //tworzę obiekt ActionBarDrawerToggle
+                R.string.open_drawer, R.string.close_drawer) {
+            @Override
+            public void onDrawerClosed(View view) { //metoda wywołana kiedy szuflada będzie zamknięta
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu(); //metoda invalidateOptionsMenu informuje że należy otworzyć/użyć elementu menu
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) { //metoda wywołana kiedy szuflada będzie otwarta
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu();
+            }
+        };
+        drawerLayout.setDrawerListener(drawerToggle); //ustawiam ActionBarDrawerToggle jako obiekt nasłuchujący układu DrawerLayout
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) { //metoda synchronizująca stan przycisku ActionBarDrawerToggle z stanem szuflady
+        super.onPostCreate(savedInstanceState);
+        drawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) { //metoda przekazuje wszelkie zmiany do przycisku ActionBarDrawerToggle
+        super.onConfigurationChanged(newConfig);
+        drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) { //określam widoczność akcji, zaleznie czy szuflada jest otwarta czy zamknięta
+        boolean drawerOpen = drawerLayout.isDrawerOpen(drawerList);
+        menu.findItem(R.id.action_share).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     //poniżej element nasłuchujący klknięcia w listę z szuflady
@@ -105,6 +145,9 @@ public class MainActivity extends Activity {
     //zaimplementowana metoda wykona określony kod po kliknięciu wybranego elementu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (drawerToggle.onOptionsItemSelected(item)) { //funkcja if daje możliwość obsługi kliknięć przez ActionBarDrawerToggle
+            return true;
+        }
         switch (item.getItemId()) {
             case R.id.action_create_order: //wywołuję aktywność OrderActivity
                 Toast.makeText(this, "Złóż zamówienie", Toast.LENGTH_SHORT).show();

@@ -5,6 +5,8 @@
     <string name="order_activity_name">złóż zamówienie</string>
     <string name="action_share">udostępnij</string>
     <string name="title_top">Fragment TopFragment</string>
+    <string name="open_drawer">Otwórz szufladę</string>
+    <string name="close_drawer">Zamknij szufladę</string>
     <string-array name="pizzas">
         <item>Diavolo</item>
         <item>Funghi</item>
