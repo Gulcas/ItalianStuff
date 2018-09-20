@@ -34,17 +34,17 @@ public class MainActivity extends Activity {
         }
     }
 
+    ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         titles = getResources().getStringArray(R.array.titles); //odnajduję listę główną szuflady
         drawerList = (ListView) findViewById(R.id.drawer); //odnajduję sam widok szuflady
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout); //odnajduję layout w którym znajduje się szuflada
         drawerList.setAdapter(new ArrayAdapter<String>(this, //do odnalezionego widoku szuflady wciskam odnalezioną listę główną szuflady,
                 android.R.layout.simple_list_item_activated_1, titles)); //a używając ...activated list item, elementy wybrane zostaną podświetlone
-
         drawerList.setOnItemClickListener(new DrawerItemClickListner()); //dodaję utworzon nasłuchiwacz do widoku listy
         if (savedInstanceState != null) { //jeżeli aktywność została usunięta, pasek tytułu otrzyma nazwę ostatniej aktywności
             currentPosition = savedInstanceState.getInt("position");
@@ -71,31 +71,34 @@ public class MainActivity extends Activity {
         getActionBar().setDisplayHomeAsUpEnabled(true); //włączam przyciski "w górę"
         getActionBar().setHomeButtonEnabled(true); //włączam przyciski "w górę"
 
-        getFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            public void onBackStackChanged() { //metoda wywoływana przy zmianie stanu cofnięć
-                FragmentManager fragMan = getFragmentManager();
-                Fragment fragment = fragMan.findFragmentByTag("visible_fragment");
-                //sprawdzam który fragment jest aktualnie dołączony do aktywności, który aktualnie jest wyświetlany
-                if (fragment instanceof TopFragment) {
-                    currentPosition = 0;
+        getFragmentManager().addOnBackStackChangedListener(
+                new FragmentManager.OnBackStackChangedListener() {
+                    public void onBackStackChanged() { //metoda wywoływana przy zmianie stanu cofnięć
+                        FragmentManager fragMan = getFragmentManager();
+                        Fragment fragment = fragMan.findFragmentByTag("visible_fragment");
+                        //sprawdzam który fragment jest aktualnie dołączony do aktywności, który aktualnie jest wyświetlany
+                        if (fragment instanceof TopFragment) {
+                            currentPosition = 0;
+                        }
+                        if (fragment instanceof PizzaFragment) {
+                            currentPosition = 1;
+                        }
+                        if (fragment instanceof PastaFragment) {
+                            currentPosition = 2;
+                        }
+                        if (fragment instanceof StoresFragment) {
+                            currentPosition = 3;
+                        }
+                        setActionBarTitle(currentPosition); //ustawiam pasek tytułu zgodnie z numerem ostatniego fragmentu
+                        drawerList.setItemChecked(currentPosition, true);
+                    }
                 }
-                if (fragment instanceof PizzaFragment) {
-                    currentPosition = 1;
-                }
-                if (fragment instanceof PastaFragment) {
-                    currentPosition = 2;
-                }
-                if (fragment instanceof StoresFragment) {
-                    currentPosition = 3;
-                }
-                setActionBarTitle(currentPosition); //ustawiam pasek tytułu zgodnie z numerem ostatniego fragmentu
-                drawerList.setItemChecked(currentPosition, true);
-            }
-        });
+        );
     }
 
     //poniższa metoda wykorzystuje swich by okreśłić który fragment ma zostać wciśnięty do ramki w ekranie główny by nie tworzyć dodatkowych widoków
     private void selectItem(int position) {
+        currentPosition = position;
         Fragment fragment;
         switch (position) {
             case 1:
@@ -111,12 +114,11 @@ public class MainActivity extends Activity {
                 fragment = new TopFragment();
         }
         FragmentTransaction ft = getFragmentManager().beginTransaction(); //wywołany manager fragmentów
-        ft.replace(R.id.content_frame, fragment); //określam gdzie i który fragment ma być wciśnięty
+        ft.replace(R.id.content_frame, fragment, "visible_fragment"); //określam gdzie i który fragment ma być wciśnięty
         ft.addToBackStack(null);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE); //określam sposób przejścia
         ft.commit(); //wykonaj
         setActionBarTitle(position); //wykorzystam inną metodę by podmienić nazwę na pasku akcji
-        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout); //na zakończenie odszukuję layout szuflady
         drawerLayout.closeDrawer(drawerList); //i go zamykam ustępując miejsca nowo wstawionemu fragmentowi
     }
 
