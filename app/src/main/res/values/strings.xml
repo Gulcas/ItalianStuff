@@ -7,6 +7,7 @@
     <string name="title_top">Fragment TopFragment</string>
     <string name="open_drawer">Otwórz szufladę</string>
     <string name="close_drawer">Zamknij szufladę</string>
+    <string name="title_activity_pizza_detail">Detale pizzy</string>
     <string-array name="pizzas">
         <item>Diavolo</item>
         <item>Funghi</item>
